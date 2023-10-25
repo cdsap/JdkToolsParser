@@ -11,25 +11,21 @@ class ConsolidateProcesses {
         val processesConsolidated = mutableListOf<Process>()
         val jInfoData = JInfoData().process(jInfoResult)
         val jStatData = JStatData().process(jStatResult)
-        if (jInfoData.size != jStatData.size) {
-            // different number of processes
-            // ignore consolidation
-        } else {
-            jInfoData.forEach {
-                if (jStatData.contains(it.key)) {
-                    processesConsolidated.add(
-                        Process(
-                            pid = it.key,
-                            max = it.value.max.toGigsFromBytes(),
-                            usage = jStatData[it.key]?.usage?.toGigsFromKb()!!,
-                            capacity = jStatData[it.key]?.capacity?.toGigsFromKb()!!,
-                            gcTime = jStatData[it.key]?.gcTime?.toMinutes()!!,
-                            uptime = jStatData[it.key]?.uptime?.toMinutes()!!,
-                            typeGc = it.value.gcType,
-                            typeProcess = typeProcess
-                        )
+
+        jStatData.forEach {
+            if (jInfoData.containsKey(it.key)) {
+                processesConsolidated.add(
+                    Process(
+                        pid = it.key,
+                        max = jInfoData[it.key]?.max?.toGigsFromBytes()!!,
+                        usage = it.value.usage.toGigsFromKb(),
+                        capacity = it.value.capacity.toGigsFromKb(),
+                        gcTime = it.value.gcTime.toMinutes(),
+                        uptime = it.value.uptime.toMinutes(),
+                        typeGc = jInfoData[it.key]?.gcType!!,
+                        typeProcess = typeProcess
                     )
-                }
+                )
             }
         }
         return processesConsolidated
