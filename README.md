@@ -6,7 +6,7 @@ This library is used in Gradle Plugins like:
 ## Dependency
 ```
 dependencies {
-    implementation("io.github.cdsap:jdk-tools-parser:0.1.0")
+    implementation("io.github.cdsap:jdk-tools-parser:0.1.1")
 }
 ```
 
