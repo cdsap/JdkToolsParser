@@ -1,5 +1,7 @@
 package io.github.cdsap.jdk.tools.parser
 
+import io.github.cdsap.jdk.tools.parser.model.ProcessJInfo
+import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 import io.github.cdsap.jdk.tools.parser.model.TypeProcess
 import org.junit.Assert.*
 import org.junit.Test
@@ -66,5 +68,52 @@ class ConsolidateProcessesTest {
         assertTrue(consolidatedList.any { it.pid == "28743" })
         assertTrue(consolidatedList.any { it.pid == "11111" })
 
+    }
+
+    @Test
+    fun testConsolidateWithInjectedParsersJoinsWithoutRawParsing() {
+        val jInfoStub = object : JInfoData() {
+            override fun process(result: String): Map<String, ProcessJInfo> {
+                return mapOf(
+                    "123" to ProcessJInfo(max = 1073741824.0, gcType = "-XX:+UseG1GC")
+                )
+            }
+        }
+        val jStatStub = object : JStatData() {
+            override fun process(result: String): Map<String, ProcessJstat> {
+                return mapOf(
+                    "123" to ProcessJstat(
+                        usage = 1048576.0,
+                        capacity = 2097152.0,
+                        gcTime = 120.0,
+                        uptime = 600.0
+                    ),
+                    "456" to ProcessJstat(
+                        usage = 1.0,
+                        capacity = 1.0,
+                        gcTime = 1.0,
+                        uptime = 1.0
+                    )
+                )
+            }
+        }
+
+        val consolidateProcesses = ConsolidateProcesses(jInfoStub, jStatStub)
+        val consolidatedList = consolidateProcesses.consolidate(
+            jStatResult = "ignored",
+            jInfoResult = "ignored",
+            typeProcess = TypeProcess.Kotlin
+        )
+
+        assertEquals(1, consolidatedList.size)
+        val consolidatedProcess = consolidatedList[0]
+        assertEquals("123", consolidatedProcess.pid)
+        assertEquals(1.0, consolidatedProcess.max, 0.01)
+        assertEquals(1.0, consolidatedProcess.usage, 0.01)
+        assertEquals(2.0, consolidatedProcess.capacity, 0.01)
+        assertEquals(2.0, consolidatedProcess.gcTime, 0.01)
+        assertEquals(10.0, consolidatedProcess.uptime, 0.01)
+        assertEquals("-XX:+UseG1GC", consolidatedProcess.typeGc)
+        assertEquals(TypeProcess.Kotlin, consolidatedProcess.typeProcess)
     }
 }

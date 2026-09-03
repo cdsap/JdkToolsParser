@@ -2,9 +2,9 @@ package io.github.cdsap.jdk.tools.parser
 
 import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 
-class JStatData {
+open class JStatData {
 
-    fun process(result: String): Map<String, ProcessJstat> {
+    open fun process(result: String): Map<String, ProcessJstat> {
         // More than one Kotlin compiler may exist
         // the format out the output is 3 lines per process:
         // Header: Timestamp    S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT    CGC    CGCT     GCT
