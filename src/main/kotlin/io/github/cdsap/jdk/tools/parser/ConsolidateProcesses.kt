@@ -5,28 +5,30 @@ import io.github.cdsap.jdk.tools.parser.model.TypeProcess
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
-class ConsolidateProcesses {
+class ConsolidateProcesses(
+    private val jInfoData: JInfoData = JInfoData(),
+    private val jStatData: JStatData = JStatData()
+) {
 
     fun consolidate(jStatResult: String, jInfoResult: String, typeProcess: TypeProcess): List<Process> {
         val processesConsolidated = mutableListOf<Process>()
-        val jInfoData = JInfoData().process(jInfoResult)
-        val jStatData = JStatData().process(jStatResult)
+        val jInfoProcesses = jInfoData.process(jInfoResult)
+        val jStatProcesses = jStatData.process(jStatResult)
 
-        jStatData.forEach {
-            if (jInfoData.containsKey(it.key)) {
-                processesConsolidated.add(
-                    Process(
-                        pid = it.key,
-                        max = jInfoData[it.key]?.max?.toGigsFromBytes()!!,
-                        usage = it.value.usage.toGigsFromKb(),
-                        capacity = it.value.capacity.toGigsFromKb(),
-                        gcTime = it.value.gcTime.toMinutes(),
-                        uptime = it.value.uptime.toMinutes(),
-                        typeGc = jInfoData[it.key]?.gcType!!,
-                        typeProcess = typeProcess
-                    )
+        jStatProcesses.forEach { (pid, jStat) ->
+            val jInfo = jInfoProcesses[pid] ?: return@forEach
+            processesConsolidated.add(
+                Process(
+                    pid = pid,
+                    max = jInfo.max.toGigsFromBytes(),
+                    usage = jStat.usage.toGigsFromKb(),
+                    capacity = jStat.capacity.toGigsFromKb(),
+                    gcTime = jStat.gcTime.toMinutes(),
+                    uptime = jStat.uptime.toMinutes(),
+                    typeGc = jInfo.gcType,
+                    typeProcess = typeProcess
                 )
-            }
+            )
         }
         return processesConsolidated
     }

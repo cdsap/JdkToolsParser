@@ -3,9 +3,9 @@ package io.github.cdsap.jdk.tools.parser
 import io.github.cdsap.jdk.tools.parser.model.ProcessJInfo
 
 
-class JInfoData {
+open class JInfoData {
 
-    fun process(result: String): Map<String, ProcessJInfo> {
+    open fun process(result: String): Map<String, ProcessJInfo> {
         val processP = mutableMapOf<String, ProcessJInfo>()
         val lines = result.split("\n")
         if (lines.last().trim() == "") {
