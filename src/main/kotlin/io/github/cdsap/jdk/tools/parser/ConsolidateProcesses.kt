@@ -1,6 +1,8 @@
 package io.github.cdsap.jdk.tools.parser
 
 import io.github.cdsap.jdk.tools.parser.model.Process
+import io.github.cdsap.jdk.tools.parser.model.ProcessJInfo
+import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 import io.github.cdsap.jdk.tools.parser.model.TypeProcess
 
 class ConsolidateProcesses(
@@ -9,15 +11,22 @@ class ConsolidateProcesses(
 ) {
 
     fun consolidate(jStatResult: String, jInfoResult: String, typeProcess: TypeProcess): List<Process> {
-        val processesConsolidated = mutableListOf<Process>()
-        val jInfoProcesses = jInfoData.process(jInfoResult)
-        val jStatProcesses = jStatData.process(jStatResult)
+        return consolidateParsed(
+            jStatProcesses = jStatData.process(jStatResult),
+            jInfoProcesses = jInfoData.process(jInfoResult),
+            typeProcess = typeProcess
+        )
+    }
 
-        jStatProcesses.forEach { (pid, jStat) ->
+    internal fun consolidateParsed(
+        jStatProcesses: Map<String, ProcessJstat>,
+        jInfoProcesses: Map<String, ProcessJInfo>,
+        typeProcess: TypeProcess
+    ): List<Process> {
+        return jStatProcesses.mapNotNull { (pid, jStat) ->
             jInfoProcesses[pid]?.let { jInfo ->
-                processesConsolidated.add(Process.from(pid, jStat, jInfo, typeProcess))
+                Process.from(pid, jStat, jInfo, typeProcess)
             }
         }
-        return processesConsolidated
     }
 }
