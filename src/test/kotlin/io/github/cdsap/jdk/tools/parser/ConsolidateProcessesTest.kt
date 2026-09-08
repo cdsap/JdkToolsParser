@@ -71,6 +71,44 @@ class ConsolidateProcessesTest {
     }
 
     @Test
+    fun testConsolidateParsedJoinsMatchingProcessesWithoutRawText() {
+        val jStatProcesses = mapOf(
+            "123" to ProcessJstat(
+                usage = 1048576.0,
+                capacity = 2097152.0,
+                gcTime = 120.0,
+                uptime = 600.0
+            ),
+            "456" to ProcessJstat(
+                usage = 1.0,
+                capacity = 1.0,
+                gcTime = 1.0,
+                uptime = 1.0
+            )
+        )
+        val jInfoProcesses = mapOf(
+            "123" to ProcessJInfo(max = 1073741824.0, gcType = "-XX:+UseG1GC")
+        )
+
+        val consolidatedList = ConsolidateProcesses().consolidateParsed(
+            jStatProcesses = jStatProcesses,
+            jInfoProcesses = jInfoProcesses,
+            typeProcess = TypeProcess.Kotlin
+        )
+
+        assertEquals(1, consolidatedList.size)
+        val consolidatedProcess = consolidatedList[0]
+        assertEquals("123", consolidatedProcess.pid)
+        assertEquals(1.0, consolidatedProcess.max, 0.01)
+        assertEquals(1.0, consolidatedProcess.usage, 0.01)
+        assertEquals(2.0, consolidatedProcess.capacity, 0.01)
+        assertEquals(2.0, consolidatedProcess.gcTime, 0.01)
+        assertEquals(10.0, consolidatedProcess.uptime, 0.01)
+        assertEquals("-XX:+UseG1GC", consolidatedProcess.typeGc)
+        assertEquals(TypeProcess.Kotlin, consolidatedProcess.typeProcess)
+    }
+
+    @Test
     fun testConsolidateWithInjectedParsersJoinsWithoutRawParsing() {
         val jInfoStub = object : JInfoData() {
             override fun process(result: String): Map<String, ProcessJInfo> {
