@@ -1,8 +1,8 @@
 package io.github.cdsap.jdk.tools.parser
 
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
 class ProjectStructureTest {
@@ -10,20 +10,20 @@ class ProjectStructureTest {
     @Test
     fun rootProjectHasNoSourceDirectory() {
         assertFalse(
-            "Source must not live in the root project",
-            Files.exists(RepoRoot.resolve("src"))
+            Files.exists(RepoRoot.resolve("src")),
+            "Source must not live in the root project"
         )
     }
 
     @Test
     fun sourcesLiveUnderCoreSubproject() {
         assertTrue(
-            "Expected main sources under core/",
-            Files.isDirectory(RepoRoot.resolve("core", "src", "main", "kotlin"))
+            Files.isDirectory(RepoRoot.resolve("core", "src", "main", "kotlin")),
+            "Expected main sources under core/"
         )
         assertTrue(
-            "Expected test sources under core/",
-            Files.isDirectory(RepoRoot.resolve("core", "src", "test", "kotlin"))
+            Files.isDirectory(RepoRoot.resolve("core", "src", "test", "kotlin")),
+            "Expected test sources under core/"
         )
     }
 
@@ -31,8 +31,8 @@ class ProjectStructureTest {
     fun settingsIncludesCoreSubproject() {
         val settings = Files.readString(RepoRoot.resolve("settings.gradle.kts"))
         assertTrue(
-            "settings.gradle.kts must include the core subproject",
-            Regex("""include\(\s*["']:?core["']\s*\)""").containsMatchIn(settings)
+            Regex("""include\(\s*["']:?core["']\s*\)""").containsMatchIn(settings),
+            "settings.gradle.kts must include the core subproject"
         )
     }
 
@@ -41,17 +41,17 @@ class ProjectStructureTest {
         val rootBuild = Files.readString(RepoRoot.resolve("build.gradle.kts"))
 
         assertFalse(
-            "Root must not apply the application plugin",
-            Regex("""(?m)^\s*application\s*$""").containsMatchIn(rootBuild)
+            Regex("""(?m)^\s*application\s*$""").containsMatchIn(rootBuild),
+            "Root must not apply the application plugin"
         )
 
-        val kotlinJvmDeclarations = Regex("""kotlin\("jvm"\)[^\n]*""")
+        val kotlinJvmDeclarations = Regex("""alias\(libs\.plugins\.kotlin\.jvm\)[^\n]*""")
             .findAll(rootBuild)
             .map { it.value.trim() }
             .toList()
         assertTrue(
-            "Root may only declare kotlin(\"jvm\") with apply false, found: $kotlinJvmDeclarations",
-            kotlinJvmDeclarations.isNotEmpty() && kotlinJvmDeclarations.all { it.contains("apply false") }
+            kotlinJvmDeclarations.isNotEmpty() && kotlinJvmDeclarations.all { it.contains("apply false") },
+            "Root may only declare alias(libs.plugins.kotlin.jvm) with apply false, found: $kotlinJvmDeclarations"
         )
     }
 
@@ -59,12 +59,12 @@ class ProjectStructureTest {
     fun coreBuildScriptOwnsCompilationAndPublishing() {
         val coreBuild = Files.readString(RepoRoot.resolve("core", "build.gradle.kts"))
         assertTrue(
-            "core must apply kotlin(\"jvm\")",
-            coreBuild.contains("""kotlin("jvm")""")
+            coreBuild.contains("alias(libs.plugins.kotlin.jvm)"),
+            "core must apply alias(libs.plugins.kotlin.jvm)"
         )
         assertTrue(
-            "core must apply maven-publish",
-            coreBuild.contains("`maven-publish`") || coreBuild.contains("maven-publish")
+            coreBuild.contains("`maven-publish`") || coreBuild.contains("maven-publish"),
+            "core must apply maven-publish"
         )
     }
 }

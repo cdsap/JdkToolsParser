@@ -1,7 +1,7 @@
 package io.github.cdsap.jdk.tools.parser.model
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class ProcessTest {
     @Test
