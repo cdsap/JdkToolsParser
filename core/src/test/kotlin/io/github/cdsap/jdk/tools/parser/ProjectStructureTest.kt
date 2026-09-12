@@ -67,4 +67,34 @@ class ProjectStructureTest {
             coreBuild.contains("`maven-publish`") || coreBuild.contains("maven-publish")
         )
     }
+
+    @Test
+    fun dependencyRepositoriesAreCentralizedInSettings() {
+        val settings = Files.readString(RepoRoot.resolve("settings.gradle.kts"))
+        assertTrue(
+            "settings.gradle.kts must set FAIL_ON_PROJECT_REPOS",
+            settings.contains("RepositoriesMode.FAIL_ON_PROJECT_REPOS")
+        )
+        assertTrue(
+            "settings.gradle.kts must declare mavenCentral() for dependency resolution",
+            Regex("""dependencyResolutionManagement\s*\{[\s\S]*mavenCentral\(\)""")
+                .containsMatchIn(settings)
+        )
+
+        val coreBuild = Files.readString(RepoRoot.resolve("core", "build.gradle.kts"))
+        assertFalse(
+            "core/build.gradle.kts must not declare a top-level dependency repositories block",
+            Regex("""(?m)^repositories\s*\{""").containsMatchIn(coreBuild)
+        )
+        assertTrue(
+            "publishing repositories must remain in core/build.gradle.kts",
+            Regex("""publishing\s*\{[\s\S]*repositories\s*\{""").containsMatchIn(coreBuild)
+        )
+
+        val rootBuild = Files.readString(RepoRoot.resolve("build.gradle.kts"))
+        assertFalse(
+            "root build.gradle.kts must not declare repositories",
+            Regex("""(?m)^repositories\s*\{""").containsMatchIn(rootBuild)
+        )
+    }
 }
