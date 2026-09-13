@@ -3,6 +3,16 @@ Utility to parse the outputs of the jdk tools jinfo/jstat.
 This library is used in Gradle Plugins like:
 * Info Kotlin Process https://github.com/cdsap/InfoKotlinProcess
 
+## Gradle wrapper upgrades
+
+`gradle/wrapper/gradle-wrapper.properties` pins `distributionSha256Sum` so the wrapper verifies the downloaded distribution bytes (not only the URL shape). When upgrading Gradle, always pass the published checksum from [Gradle release checksums](https://gradle.org/release-checksums/) for the matching `-bin` zip:
+
+```
+./gradlew wrapper --gradle-version=<version> --gradle-distribution-sha256-sum=<sha256>
+```
+
+Also update the expected version and checksum constants in `GradleWrapperTest` so the pin cannot drift unnoticed.
+
 ## Dependency
 ```
 dependencies {
