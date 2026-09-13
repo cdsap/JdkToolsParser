@@ -42,7 +42,7 @@ class ProjectStructureTest {
 
         assertFalse(
             "Root must not apply the application plugin",
-            Regex("""(?m)^\s*application\s*$""").containsMatchIn(rootBuild)
+            appliesApplicationPlugin(rootBuild)
         )
 
         val kotlinJvmDeclarations = Regex("""kotlin\("jvm"\)[^\n]*""")
@@ -52,6 +52,21 @@ class ProjectStructureTest {
         assertTrue(
             "Root may only declare kotlin(\"jvm\") with apply false, found: $kotlinJvmDeclarations",
             kotlinJvmDeclarations.isNotEmpty() && kotlinJvmDeclarations.all { it.contains("apply false") }
+        )
+    }
+
+    @Test
+    fun libraryProjectsDoNotApplyApplicationPlugin() {
+        val rootBuild = Files.readString(RepoRoot.resolve("build.gradle.kts"))
+        val coreBuild = Files.readString(RepoRoot.resolve("core", "build.gradle.kts"))
+
+        assertFalse(
+            "Root must not apply the application plugin (avoids unused startScripts/distTar/distZip)",
+            appliesApplicationPlugin(rootBuild)
+        )
+        assertFalse(
+            "core must not apply the application plugin (library has no main entry point)",
+            appliesApplicationPlugin(coreBuild)
         )
     }
 
@@ -66,5 +81,23 @@ class ProjectStructureTest {
             "core must apply maven-publish",
             coreBuild.contains("`maven-publish`") || coreBuild.contains("maven-publish")
         )
+        assertTrue(
+            "Published artifactId must remain jdk-tools-parser",
+            Regex("""artifactId\s*=\s*"jdk-tools-parser"""").containsMatchIn(coreBuild)
+        )
+        assertTrue(
+            "Publication must still come from the java component",
+            coreBuild.contains("""from(components["java"])""")
+        )
+    }
+
+    private fun appliesApplicationPlugin(buildScript: String): Boolean {
+        val patterns = listOf(
+            Regex("""(?m)^\s*application\s*$"""),
+            Regex("""(?m)^\s*id\(\s*["']application["']\s*\)"""),
+            Regex("""(?m)^\s*id\(\s*["']org\.gradle\.application["']\s*\)"""),
+            Regex("""(?m)^\s*alias\(\s*[\w.]+\.application\s*\)""")
+        )
+        return patterns.any { it.containsMatchIn(buildScript) }
     }
 }
