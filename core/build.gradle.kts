@@ -19,6 +19,16 @@ kotlin {
     jvmToolchain(17)
 }
 
+tasks.withType<Jar>().configureEach {
+    from(rootDir) {
+        include("LICENSE")
+        into("META-INF")
+    }
+}
+
+tasks.test {
+    dependsOn(tasks.jar)
+}
 
 configure<JavaPluginExtension> {
     withJavadocJar()
