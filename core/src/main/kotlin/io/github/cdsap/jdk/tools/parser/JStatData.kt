@@ -5,12 +5,20 @@ import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 open class JStatData {
 
     open fun process(result: String): Map<String, ProcessJstat> {
-        // More than one Kotlin compiler may exist
-        // the format out the output is 3 lines per process:
-        // Header: Timestamp    S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT    CGC    CGCT     GCT
-        // Values:     1117.8  0.0   30720.0  0.0   30720.0 1135616.0 755712.0  865280.0   546816.0  195184.0 189433.3 22208.0 20357.8     22    0.682   0      0.000  12      0.070    0.752
-        // PID 28743
         val processes = mutableMapOf<String, ProcessJstat>()
+        for (record in parseJstatRecords(result)) {
+            processes[record.pid] = toProcessJstat(record.values)
+        }
+        return processes
+    }
+
+    // More than one Kotlin compiler may exist
+    // the format out the output is 3 lines per process:
+    // Header: Timestamp    S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT    CGC    CGCT     GCT
+    // Values:     1117.8  0.0   30720.0  0.0   30720.0 1135616.0 755712.0  865280.0   546816.0  195184.0 189433.3 22208.0 20357.8     22    0.682   0      0.000  12      0.070    0.752
+    // PID 28743
+    private fun parseJstatRecords(result: String): List<JstatRecord> {
+        val records = mutableListOf<JstatRecord>()
         val lines = result.split("\n")
         if (lines.last().trim() == "") {
             lines.dropLast(1)
@@ -25,16 +33,19 @@ open class JStatData {
                 val mapOfValues = getMapValues(rawHeaders, rawValues)
                 val process = lines[++currentIndex].split("\\s+".toRegex())
                 currentIndex++
-
-                processes[process.first()] = ProcessJstat(
-                    capacity = getCapacity(mapOfValues),
-                    usage = getUsage(mapOfValues),
-                    gcTime = gcTime(mapOfValues),
-                    uptime = uptime(mapOfValues)
-                )
+                records.add(JstatRecord(pid = process.first(), values = mapOfValues))
             }
         }
-        return processes
+        return records
+    }
+
+    private fun toProcessJstat(values: Map<String, String>): ProcessJstat {
+        return ProcessJstat(
+            capacity = getCapacity(values),
+            usage = getUsage(values),
+            gcTime = gcTime(values),
+            uptime = uptime(values)
+        )
     }
 
     private fun getMapValues(rawHeaders: List<String>, rawValues: List<String>): Map<String, String> {
@@ -46,6 +57,11 @@ open class JStatData {
         }
         return parsedValues
     }
+
+    private data class JstatRecord(
+        val pid: String,
+        val values: Map<String, String>
+    )
 }
 
 private fun getCapacity(values: Map<String, String>): Double {
