@@ -1,11 +1,41 @@
 package io.github.cdsap.jdk.tools.parser
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.nio.file.Files
 
 class ProjectStructureTest {
+
+    @Test
+    fun rootProjectNameMatchesPublishedArtifactId() {
+        val settings = Files.readString(RepoRoot.resolve("settings.gradle.kts"))
+        val coreBuild = Files.readString(RepoRoot.resolve("core", "build.gradle.kts"))
+
+        val rootProjectName = Regex("""rootProject\.name\s*=\s*"([^"]+)"""")
+            .find(settings)
+            ?.groupValues
+            ?.get(1)
+            ?: error("rootProject.name not found in settings.gradle.kts")
+
+        val artifactId = Regex("""artifactId\s*=\s*"([^"]+)"""")
+            .find(coreBuild)
+            ?.groupValues
+            ?.get(1)
+            ?: error("artifactId not found in core/build.gradle.kts")
+
+        assertEquals(
+            "Published artifactId must stay jdk-tools-parser (changing it breaks consumers)",
+            "jdk-tools-parser",
+            artifactId
+        )
+        assertEquals(
+            "rootProject.name must match the published artifactId",
+            artifactId,
+            rootProjectName
+        )
+    }
 
     @Test
     fun rootProjectHasNoSourceDirectory() {
