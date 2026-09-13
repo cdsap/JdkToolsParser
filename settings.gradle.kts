@@ -1,3 +1,3 @@
 
-rootProject.name = "jdk-tool-parsers"
+rootProject.name = "jdk-tools-parser"
 include("core")
