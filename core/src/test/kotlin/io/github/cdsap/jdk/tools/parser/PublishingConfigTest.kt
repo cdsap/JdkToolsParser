@@ -4,11 +4,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.nio.file.Files
-import java.nio.file.Paths
 
 class PublishingConfigTest {
 
-    private val buildScript = Files.readString(Paths.get("build.gradle.kts"))
+    private val buildScript = Files.readString(RepoRoot.resolve("core", "build.gradle.kts"))
 
     @Test
     fun usesCentralPortalSnapshotAndStagingEndpoints() {

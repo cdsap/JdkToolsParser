@@ -3,13 +3,12 @@ package io.github.cdsap.jdk.tools.parser
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.nio.file.Files
-import java.nio.file.Paths
 
 class GradleWrapperTest {
 
     @Test
     fun gradleWrapperUsesExpectedVersion() {
-        val wrapperProperties = Paths.get("gradle/wrapper/gradle-wrapper.properties")
+        val wrapperProperties = RepoRoot.resolve("gradle", "wrapper", "gradle-wrapper.properties")
         val distributionUrl = Files.readAllLines(wrapperProperties)
             .first { it.startsWith("distributionUrl=") }
             .substringAfter("distributionUrl=")

@@ -4,11 +4,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.nio.file.Files
-import java.nio.file.Paths
 
 class BuildWorkflowTest {
 
-    private val workflow = Files.readString(Paths.get(".github/workflows/build.yaml"))
+    private val workflow = Files.readString(RepoRoot.resolve(".github", "workflows", "build.yaml"))
 
     @Test
     fun usesSetupGradleActionNotDeprecatedBuildAction() {
