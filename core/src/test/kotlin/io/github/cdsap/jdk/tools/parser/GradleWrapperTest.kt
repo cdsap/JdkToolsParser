@@ -1,8 +1,8 @@
 package io.github.cdsap.jdk.tools.parser
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
 class GradleWrapperTest {
@@ -29,8 +29,8 @@ class GradleWrapperTest {
         val distributionUrl = wrapperProperties.getValue("distributionUrl").replace("\\:", ":")
 
         assertTrue(
-            "Expected Gradle $EXPECTED_GRADLE_VERSION in wrapper properties, but found: $distributionUrl",
-            distributionUrl.contains("gradle-$EXPECTED_GRADLE_VERSION-")
+            distributionUrl.contains("gradle-$EXPECTED_GRADLE_VERSION-"),
+            "Expected Gradle $EXPECTED_GRADLE_VERSION in wrapper properties, but found: $distributionUrl"
         )
     }
 
@@ -38,9 +38,9 @@ class GradleWrapperTest {
     fun gradleWrapperPinsDistributionSha256Sum() {
         val distributionSha256Sum = wrapperProperties["distributionSha256Sum"]
         assertEquals(
-            "distributionSha256Sum must match the published checksum for gradle-$EXPECTED_GRADLE_VERSION-bin.zip",
             EXPECTED_DISTRIBUTION_SHA256,
-            distributionSha256Sum
+            distributionSha256Sum,
+            "distributionSha256Sum must match the published checksum for gradle-$EXPECTED_GRADLE_VERSION-bin.zip"
         )
     }
 }

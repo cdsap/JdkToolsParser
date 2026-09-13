@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
     `maven-publish`
     `signing`
 }
@@ -8,7 +8,9 @@ group = "io.github.cdsap"
 version = "0.1.1"
 
 dependencies {
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 kotlin {
@@ -23,6 +25,7 @@ tasks.withType<Jar>().configureEach {
 }
 
 tasks.test {
+    useJUnitPlatform()
     dependsOn(tasks.jar)
 }
 

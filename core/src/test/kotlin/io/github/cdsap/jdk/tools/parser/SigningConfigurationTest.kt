@@ -1,9 +1,9 @@
 package io.github.cdsap.jdk.tools.parser
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
@@ -14,24 +14,24 @@ class SigningConfigurationTest {
     @Test
     fun coreBuildScriptDoesNotUseAfterEvaluate() {
         assertFalse(
-            "afterEvaluate defeats task configuration avoidance and is incompatible with the Configuration Cache",
-            coreBuild.contains("afterEvaluate")
+            coreBuild.contains("afterEvaluate"),
+            "afterEvaluate defeats task configuration avoidance and is incompatible with the Configuration Cache"
         )
     }
 
     @Test
     fun signingWiresPublicationsLazilyWithoutCast() {
         assertTrue(
-            "Expected pluginManager.withPlugin(\"signing\") so signing reacts without afterEvaluate",
-            coreBuild.contains("""pluginManager.withPlugin("signing")""")
+            coreBuild.contains("""pluginManager.withPlugin("signing")"""),
+            "Expected pluginManager.withPlugin(\"signing\") so signing reacts without afterEvaluate"
         )
         assertTrue(
-            "Expected sign(publishing.publications) so later publication additions are signed",
-            coreBuild.contains("sign(publishing.publications)")
+            coreBuild.contains("sign(publishing.publications)"),
+            "Expected sign(publishing.publications) so later publication additions are signed"
         )
         assertFalse(
-            "Signing must not cast the publishing extension by name",
-            coreBuild.contains("""extensions.getByName("publishing")""")
+            coreBuild.contains("""extensions.getByName("publishing")"""),
+            "Signing must not cast the publishing extension by name"
         )
     }
 
@@ -66,17 +66,17 @@ class SigningConfigurationTest {
 
             val finished = process.waitFor(10, TimeUnit.MINUTES)
             val output = process.inputStream.bufferedReader().readText()
-            assertTrue("Gradle timed out while verifying configuration cache with signing properties", finished)
+            assertTrue(finished, "Gradle timed out while verifying configuration cache with signing properties")
             assertEquals(
-                "Expected configuration with signing properties and --configuration-cache to succeed.\n$output",
                 0,
-                process.exitValue()
+                process.exitValue(),
+                "Expected configuration with signing properties and --configuration-cache to succeed.\n$output"
             )
             assertTrue(
-                "Expected configuration cache to store or reuse an entry.\n$output",
                 output.contains("Configuration cache entry stored") ||
                     output.contains("Configuration cache entry reused") ||
-                    output.contains("Reusing configuration cache")
+                    output.contains("Reusing configuration cache"),
+                "Expected configuration cache to store or reuse an entry.\n$output"
             )
         } finally {
             gradleUserHome.toFile().deleteRecursively()

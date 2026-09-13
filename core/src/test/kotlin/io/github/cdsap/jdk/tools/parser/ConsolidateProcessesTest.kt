@@ -3,8 +3,8 @@ package io.github.cdsap.jdk.tools.parser
 import io.github.cdsap.jdk.tools.parser.model.ProcessJInfo
 import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 import io.github.cdsap.jdk.tools.parser.model.TypeProcess
-import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
 
 class ConsolidateProcessesTest {

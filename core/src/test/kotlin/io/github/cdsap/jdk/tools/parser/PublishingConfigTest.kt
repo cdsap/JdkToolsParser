@@ -1,8 +1,8 @@
 package io.github.cdsap.jdk.tools.parser
 
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
 class PublishingConfigTest {
@@ -12,84 +12,84 @@ class PublishingConfigTest {
     @Test
     fun usesCentralPortalSnapshotAndStagingEndpoints() {
         assertTrue(
-            "Expected Central Portal snapshots URL",
-            buildScript.contains("https://central.sonatype.com/repository/maven-snapshots/")
+            buildScript.contains("https://central.sonatype.com/repository/maven-snapshots/"),
+            "Expected Central Portal snapshots URL"
         )
         assertTrue(
-            "Expected OSSRH Staging API deploy URL",
             buildScript.contains(
                 "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
-            )
+            ),
+            "Expected OSSRH Staging API deploy URL"
         )
         assertFalse(
-            "Legacy OSSRH host must not remain in publishing config",
-            buildScript.contains("s01.oss.sonatype.org")
+            buildScript.contains("s01.oss.sonatype.org"),
+            "Legacy OSSRH host must not remain in publishing config"
         )
         assertFalse(
-            "Legacy OSSRH host must not remain in publishing config",
-            Regex("""https?://(?:s01\.)?oss\.sonatype\.org""").containsMatchIn(buildScript)
+            Regex("""https?://(?:s01\.)?oss\.sonatype\.org""").containsMatchIn(buildScript),
+            "Legacy OSSRH host must not remain in publishing config"
         )
     }
 
     @Test
     fun releaseAndSnapshotCredentialsAreDistinct() {
         assertTrue(
-            "Snapshots must use USERNAME_SNAPSHOT",
-            buildScript.contains("USERNAME_SNAPSHOT")
+            buildScript.contains("USERNAME_SNAPSHOT"),
+            "Snapshots must use USERNAME_SNAPSHOT"
         )
         assertTrue(
-            "Snapshots must use PASSWORD_SNAPSHOT",
-            buildScript.contains("PASSWORD_SNAPSHOT")
+            buildScript.contains("PASSWORD_SNAPSHOT"),
+            "Snapshots must use PASSWORD_SNAPSHOT"
         )
         assertTrue(
-            "Release must use USERNAME_RELEASE",
-            buildScript.contains("USERNAME_RELEASE")
+            buildScript.contains("USERNAME_RELEASE"),
+            "Release must use USERNAME_RELEASE"
         )
         assertTrue(
-            "Release must use PASSWORD_RELEASE",
-            buildScript.contains("PASSWORD_RELEASE")
+            buildScript.contains("PASSWORD_RELEASE"),
+            "Release must use PASSWORD_RELEASE"
         )
         assertTrue(
-            "Release credentials must also be available as gradle properties",
             buildScript.contains("mavenReleaseUsername") &&
-                buildScript.contains("mavenReleasePassword")
+                buildScript.contains("mavenReleasePassword"),
+            "Release credentials must also be available as gradle properties"
         )
         assertTrue(
-            "Snapshot credentials must also be available as gradle properties",
             buildScript.contains("mavenSnapshotsUsername") &&
-                buildScript.contains("mavenSnapshotsPassword")
+                buildScript.contains("mavenSnapshotsPassword"),
+            "Snapshot credentials must also be available as gradle properties"
         )
     }
 
     @Test
     fun doesNotReadEnvironmentEagerlyAtConfigurationTime() {
         assertFalse(
-            "Publishing credentials must not use System.getenv()",
-            buildScript.contains("System.getenv(")
+            buildScript.contains("System.getenv("),
+            "Publishing credentials must not use System.getenv()"
         )
         assertTrue(
-            "Credentials should use providers.environmentVariable()",
-            buildScript.contains("providers.environmentVariable(")
+            buildScript.contains("providers.environmentVariable("),
+            "Credentials should use providers.environmentVariable()"
         )
         assertTrue(
-            "Credentials/URLs should use providers.gradleProperty()",
-            buildScript.contains("providers.gradleProperty(")
+            buildScript.contains("providers.gradleProperty("),
+            "Credentials/URLs should use providers.gradleProperty()"
         )
         assertFalse(
-            "Signing gate should not use eager extra.has()",
-            buildScript.contains("extra.has(")
+            buildScript.contains("extra.has("),
+            "Signing gate should not use eager extra.has()"
         )
     }
 
     @Test
     fun supportsLocalDryRunUrlOverrides() {
         assertTrue(
-            "mavenSnapshotsUrl override required for local publish dry-run",
-            buildScript.contains("mavenSnapshotsUrl")
+            buildScript.contains("mavenSnapshotsUrl"),
+            "mavenSnapshotsUrl override required for local publish dry-run"
         )
         assertTrue(
-            "mavenReleaseUrl override required for local publish dry-run",
-            buildScript.contains("mavenReleaseUrl")
+            buildScript.contains("mavenReleaseUrl"),
+            "mavenReleaseUrl override required for local publish dry-run"
         )
     }
 }

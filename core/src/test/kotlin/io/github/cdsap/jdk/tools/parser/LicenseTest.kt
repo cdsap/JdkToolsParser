@@ -1,7 +1,7 @@
 package io.github.cdsap.jdk.tools.parser
 
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.util.jar.JarFile
 
@@ -10,8 +10,8 @@ class LicenseTest {
     @Test
     fun licenseFileExistsAtRepoRoot() {
         assertTrue(
-            "Expected LICENSE at repository root for GitHub license detection",
-            Files.isRegularFile(RepoRoot.resolve("LICENSE"))
+            Files.isRegularFile(RepoRoot.resolve("LICENSE")),
+            "Expected LICENSE at repository root for GitHub license detection"
         )
     }
 
@@ -21,21 +21,21 @@ class LicenseTest {
         val coreBuild = Files.readString(RepoRoot.resolve("core", "build.gradle.kts"))
 
         assertTrue(
-            "LICENSE must be the MIT License text",
-            license.startsWith("MIT License")
+            license.startsWith("MIT License"),
+            "LICENSE must be the MIT License text"
         )
         assertTrue(
-            "LICENSE must include the copyright notice",
-            license.contains("Copyright (c) 2023 Iñaki Villar")
+            license.contains("Copyright (c) 2023 Iñaki Villar"),
+            "LICENSE must include the copyright notice"
         )
         assertTrue(
-            "LICENSE must include the MIT permission notice",
-            license.contains("Permission is hereby granted, free of charge")
+            license.contains("Permission is hereby granted, free of charge"),
+            "LICENSE must include the MIT permission notice"
         )
         assertTrue(
-            "POM must continue declaring The MIT License (MIT)",
             coreBuild.contains("""name.set("The MIT License (MIT)")""") &&
-                coreBuild.contains("""url.set("https://opensource.org/licenses/MIT")""")
+                coreBuild.contains("""url.set("https://opensource.org/licenses/MIT")"""),
+            "POM must continue declaring The MIT License (MIT)"
         )
     }
 
@@ -44,18 +44,18 @@ class LicenseTest {
         val coreBuild = Files.readString(RepoRoot.resolve("core", "build.gradle.kts"))
 
         assertTrue(
-            "core must package LICENSE into Jar META-INF",
             Regex(
                 """tasks\.withType<\s*Jar\s*>\(\)\s*\.configureEach\s*\{[^}]*from\(rootDir\)\s*\{[^}]*include\("LICENSE"\)[^}]*into\("META-INF"\)""",
                 RegexOption.DOT_MATCHES_ALL
-            ).containsMatchIn(coreBuild)
+            ).containsMatchIn(coreBuild),
+            "core must package LICENSE into Jar META-INF"
         )
     }
 
     @Test
     fun builtJarContainsLicenseUnderMetaInf() {
         val libsDir = RepoRoot.resolve("core", "build", "libs")
-        assertTrue("Expected core/build/libs after jar task", Files.isDirectory(libsDir))
+        assertTrue(Files.isDirectory(libsDir), "Expected core/build/libs after jar task")
 
         val jarPath = Files.list(libsDir).use { paths ->
             paths.filter { path ->
@@ -66,15 +66,15 @@ class LicenseTest {
                     !name.contains("-javadoc")
             }.findFirst().orElse(null)
         }
-        assertTrue("Expected a core-*.jar under core/build/libs", jarPath != null)
+        assertTrue(jarPath != null, "Expected a core-*.jar under core/build/libs")
 
         JarFile(jarPath!!.toFile()).use { jar ->
             val entry = jar.getEntry("META-INF/LICENSE")
-            assertTrue("Published jar must include META-INF/LICENSE", entry != null)
+            assertTrue(entry != null, "Published jar must include META-INF/LICENSE")
             val text = jar.getInputStream(entry).bufferedReader().readText()
             assertTrue(
-                "META-INF/LICENSE must contain MIT license text",
-                text.contains("MIT License") && text.contains("Copyright (c) 2023 Iñaki Villar")
+                text.contains("MIT License") && text.contains("Copyright (c) 2023 Iñaki Villar"),
+                "META-INF/LICENSE must contain MIT license text"
             )
         }
     }
