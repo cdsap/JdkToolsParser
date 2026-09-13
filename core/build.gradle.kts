@@ -7,10 +7,6 @@ plugins {
 group = "io.github.cdsap"
 version = "0.1.1"
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
@@ -21,36 +17,75 @@ kotlin {
     jvmToolchain(17)
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks.withType<Jar>().configureEach {
+    from(rootDir) {
+        include("LICENSE")
+        into("META-INF")
+    }
 }
 
+tasks.test {
+    useJUnitPlatform()
+    dependsOn(tasks.jar)
+}
 
 configure<JavaPluginExtension> {
     withJavadocJar()
     withSourcesJar()
 }
 
+fun org.gradle.api.artifacts.repositories.MavenArtifactRepository.credentialsFrom(
+    usernameProperty: String,
+    passwordProperty: String,
+    usernameEnv: String,
+    passwordEnv: String,
+) {
+    val usernameProvider = providers.gradleProperty(usernameProperty)
+        .orElse(providers.environmentVariable(usernameEnv))
+    val passwordProvider = providers.gradleProperty(passwordProperty)
+        .orElse(providers.environmentVariable(passwordEnv))
+    // Only attach credentials when supplied — file:// dry-runs reject Authentication.
+    if (usernameProvider.isPresent || passwordProvider.isPresent) {
+        credentials {
+            username = usernameProvider.getOrElse("")
+            password = passwordProvider.getOrElse("")
+        }
+    }
+}
 
 publishing {
     repositories {
         maven {
             name = "Snapshots"
-            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-
-            credentials {
-                username = System.getenv("USERNAME_SNAPSHOT")
-                password = System.getenv("PASSWORD_SNAPSHOT")
-            }
+            // Central Portal snapshots (OSSRH sunset June 30, 2025):
+            // https://central.sonatype.org/publish/publish-portal-snapshots/
+            url = uri(
+                providers.gradleProperty("mavenSnapshotsUrl")
+                    .getOrElse("https://central.sonatype.com/repository/maven-snapshots/")
+            )
+            credentialsFrom(
+                usernameProperty = "mavenSnapshotsUsername",
+                passwordProperty = "mavenSnapshotsPassword",
+                usernameEnv = "USERNAME_SNAPSHOT",
+                passwordEnv = "PASSWORD_SNAPSHOT",
+            )
         }
         maven {
             name = "Release"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-
-            credentials {
-                username = System.getenv("USERNAME_SNAPSHOT")
-                password = System.getenv("PASSWORD_SNAPSHOT")
-            }
+            // Portal OSSRH Staging API for maven-publish (OSSRH sunset June 30, 2025):
+            // https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/
+            url = uri(
+                providers.gradleProperty("mavenReleaseUrl")
+                    .getOrElse(
+                        "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
+                    )
+            )
+            credentialsFrom(
+                usernameProperty = "mavenReleaseUsername",
+                passwordProperty = "mavenReleasePassword",
+                usernameEnv = "USERNAME_RELEASE",
+                passwordEnv = "PASSWORD_RELEASE",
+            )
         }
     }
     publications {
@@ -93,13 +128,8 @@ publishing {
     }
 }
 
-if (extra.has("signing.keyId")) {
-    afterEvaluate {
-        configure<SigningExtension> {
-            (extensions.getByName("publishing") as
-                PublishingExtension).publications.forEach {
-                sign(it)
-            }
-        }
+pluginManager.withPlugin("signing") {
+    signing {
+        sign(publishing.publications)
     }
 }
