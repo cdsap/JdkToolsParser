@@ -87,13 +87,8 @@ publishing {
     }
 }
 
-if (extra.has("signing.keyId")) {
-    afterEvaluate {
-        configure<SigningExtension> {
-            (extensions.getByName("publishing") as
-                PublishingExtension).publications.forEach {
-                sign(it)
-            }
-        }
+pluginManager.withPlugin("signing") {
+    signing {
+        sign(publishing.publications)
     }
 }
