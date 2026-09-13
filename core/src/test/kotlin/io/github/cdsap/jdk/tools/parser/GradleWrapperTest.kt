@@ -1,7 +1,7 @@
 package io.github.cdsap.jdk.tools.parser
 
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
 class GradleWrapperTest {
@@ -15,8 +15,8 @@ class GradleWrapperTest {
             .replace("\\:", ":")
 
         assertTrue(
-            "Expected Gradle 9.7.1 in wrapper properties, but found: $distributionUrl",
-            distributionUrl.contains("gradle-9.7.1-")
+            distributionUrl.contains("gradle-9.7.1-"),
+            "Expected Gradle 9.7.1 in wrapper properties, but found: $distributionUrl"
         )
     }
 }
