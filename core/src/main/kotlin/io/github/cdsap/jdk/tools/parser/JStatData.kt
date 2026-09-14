@@ -2,9 +2,9 @@ package io.github.cdsap.jdk.tools.parser
 
 import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 
-open class JStatData {
+open class JStatData : JStatParser {
 
-    open fun process(result: String): Map<String, ProcessJstat> {
+    open override fun process(result: String): Map<String, ProcessJstat> {
         val processes = mutableMapOf<String, ProcessJstat>()
         for (record in parseJstatRecords(result)) {
             processes[record.pid] = toProcessJstat(record.values)
