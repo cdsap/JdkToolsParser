@@ -6,8 +6,8 @@ import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 import io.github.cdsap.jdk.tools.parser.model.TypeProcess
 
 class ConsolidateProcesses(
-    private val jInfoData: JInfoData = JInfoData(),
-    private val jStatData: JStatData = JStatData()
+    private val jInfoData: JInfoParser = JInfoData(),
+    private val jStatData: JStatParser = JStatData()
 ) {
 
     fun consolidate(jStatResult: String, jInfoResult: String, typeProcess: TypeProcess): List<Process> {
