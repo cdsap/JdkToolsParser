@@ -30,19 +30,16 @@ open class JInfoData : JInfoParser {
         return processP
     }
 
-    private fun getCollector(flags: List<String>): String {
-        if (flags.contains("-XX:+UseZGC")) {
-            return "-XX:+UseZGC"
-        } else if (flags.contains("-XX:+UseSerialGC")) {
-            return "-XX:+UseSerialGC"
-        } else if (flags.contains("-XX:+UseShenandoahGC")) {
-            return "-XX:+UseShenandoahGC"
-        } else if (flags.contains("-XX:+UseG1GC")) {
-            return "-XX:+UseG1GC"
-        } else if (flags.contains("-XX:+UseParallelGC")) {
-            return "-XX:+UseParallelGC"
-        } else {
-            return ""
-        }
+    private fun getCollector(flags: List<String>): String =
+        collectorFlags.firstOrNull { (flag, _) -> flags.contains(flag) }?.second.orEmpty()
+
+    private companion object {
+        val collectorFlags = listOf(
+            "-XX:+UseZGC" to "-XX:+UseZGC",
+            "-XX:+UseSerialGC" to "-XX:+UseSerialGC",
+            "-XX:+UseShenandoahGC" to "-XX:+UseShenandoahGC",
+            "-XX:+UseG1GC" to "-XX:+UseG1GC",
+            "-XX:+UseParallelGC" to "-XX:+UseParallelGC",
+        )
     }
 }

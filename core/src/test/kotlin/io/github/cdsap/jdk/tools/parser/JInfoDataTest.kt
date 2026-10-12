@@ -1,5 +1,6 @@
 package io.github.cdsap.jdk.tools.parser
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -86,6 +87,35 @@ class JInfoDataTest {
         assertTrue(result.size == 1)
         assertTrue(result.containsKey("12345"))
         assertTrue(result["12345"]?.gcType == "-XX:+UseZGC")
+    }
+
+    @Test
+    fun testSupportedGcTypesAreRetrieved() {
+        val jInfoData = JInfoData()
+        val collectorFlags = listOf(
+            "-XX:+UseZGC",
+            "-XX:+UseSerialGC",
+            "-XX:+UseShenandoahGC",
+            "-XX:+UseG1GC",
+            "-XX:+UseParallelGC",
+        )
+
+        collectorFlags.forEach { collectorFlag ->
+            val output = "$collectorFlag -XX:MaxHeapSize=1\n12345"
+
+            assertEquals(collectorFlag, jInfoData.process(output)["12345"]?.gcType)
+        }
+    }
+
+    @Test
+    fun testGcTypePreservesCollectorPriority() {
+        val jInfoData = JInfoData()
+        val output = """
+            -XX:+UseParallelGC -XX:+UseG1GC -XX:+UseShenandoahGC -XX:+UseSerialGC -XX:+UseZGC -XX:MaxHeapSize=1
+            12345
+            """.trimIndent()
+
+        assertEquals("-XX:+UseZGC", jInfoData.process(output)["12345"]?.gcType)
     }
 
     @Test
