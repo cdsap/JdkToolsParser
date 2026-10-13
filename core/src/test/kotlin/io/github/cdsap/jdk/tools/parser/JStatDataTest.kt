@@ -133,4 +133,18 @@ class JStatDataTest {
         assertTrue(result["42050"]?.capacity == 0.0)
         assertTrue(result["42050"]?.usage == 0.0)
     }
+
+    @Test
+    fun testTrailingNewlineDoesNotCreateAnAdditionalRecord() {
+        val jStatData = JStatData()
+        val output = """
+            Timestamp  GCT
+                    10.0  1.5
+            42050
+        """.trimIndent() + "\n"
+        val result = jStatData.process(output)
+
+        assertTrue(result.size == 1)
+        assertTrue(result["42050"]?.uptime == 10.0)
+    }
 }

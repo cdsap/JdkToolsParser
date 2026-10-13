@@ -19,20 +19,12 @@ open class JStatData : JStatParser, ProcessParser<ProcessJstat> {
     // PID 28743
     private fun parseJstatRecords(result: String): List<JstatRecord> {
         val records = mutableListOf<JstatRecord>()
-        val lines = result.split("\n")
-        if (lines.last().trim() == "") {
-            lines.dropLast(1)
-        }
-        val numberOfProcessesDetected = lines.size / 3
-        var currentIndex = 0
-
-        for (i in 0 until numberOfProcessesDetected) {
-            val rawHeaders = lines[currentIndex].split("\\s+".toRegex()).filter { it != "" }
-            val rawValues = lines[++currentIndex].split("\\s+".toRegex()).filter { it != "" }
+        for (record in result.fixedWidthRecords(3)) {
+            val rawHeaders = record[0].split("\\s+".toRegex()).filter { it != "" }
+            val rawValues = record[1].split("\\s+".toRegex()).filter { it != "" }
             if (rawHeaders.size == rawValues.size) {
                 val mapOfValues = getMapValues(rawHeaders, rawValues)
-                val process = lines[++currentIndex].split("\\s+".toRegex())
-                currentIndex++
+                val process = record[2].split("\\s+".toRegex())
                 records.add(JstatRecord(pid = process.first(), values = mapOfValues))
             }
         }
