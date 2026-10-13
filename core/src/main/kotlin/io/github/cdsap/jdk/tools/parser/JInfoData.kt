@@ -7,23 +7,16 @@ open class JInfoData : JInfoParser, ProcessParser<ProcessJInfo> {
 
     open override fun process(result: String): Map<String, ProcessJInfo> {
         val processP = mutableMapOf<String, ProcessJInfo>()
-        val lines = result.split("\n")
-        if (lines.last().trim() == "") {
-            lines.dropLast(1)
-        }
-        val xNumberOfProcess = lines.size / 2
-        var auxIndex = 0
-        for (i in 0 until xNumberOfProcess) {
-            val flags = lines[auxIndex].split("\\s+".toRegex())
+        for (record in result.fixedWidthRecords(2)) {
+            val flags = record[0].split("\\s+".toRegex())
             val gcType = getCollector(flags)
             if (!flags.last().contains("-XX:MaxHeapSize=")) {
                 flags.dropLast(1)
             }
 
             val heapSizeFlag = flags.firstOrNull { it.contains("-XX:MaxHeapSize=") }?.replace("-XX:MaxHeapSize=", "")
-            val process = lines[++auxIndex].split("\\s+".toRegex())
+            val process = record[1].split("\\s+".toRegex())
             if (heapSizeFlag != null) {
-                auxIndex++
                 processP[process.first()] = ProcessJInfo(heapSizeFlag.toDouble(), gcType)
             }
         }
