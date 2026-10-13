@@ -110,14 +110,14 @@ class ConsolidateProcessesTest {
 
     @Test
     fun testConsolidateWithInjectedParsersJoinsWithoutRawParsing() {
-        val jInfoStub = object : JInfoParser {
+        val jInfoStub = object : ProcessParser<ProcessJInfo> {
             override fun process(result: String): Map<String, ProcessJInfo> {
                 return mapOf(
                     "123" to ProcessJInfo(max = 1073741824.0, gcType = "-XX:+UseG1GC")
                 )
             }
         }
-        val jStatStub = object : JStatParser {
+        val jStatStub = object : ProcessParser<ProcessJstat> {
             override fun process(result: String): Map<String, ProcessJstat> {
                 return mapOf(
                     "123" to ProcessJstat(
