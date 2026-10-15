@@ -12,25 +12,7 @@ data class Process(
     val uptime: Double,
     val typeGc: String,
     val typeProcess: TypeProcess
-) {
-    companion object {
-        fun from(
-            pid: String,
-            jstat: ProcessJstat,
-            jinfo: ProcessJInfo,
-            typeProcess: TypeProcess
-        ): Process = Process(
-            pid = pid,
-            max = jinfo.max.toGigsFromBytes(),
-            usage = jstat.usage.toGigsFromKb(),
-            capacity = jstat.capacity.toGigsFromKb(),
-            gcTime = jstat.gcTime.toMinutes(),
-            uptime = jstat.uptime.toMinutes(),
-            typeGc = jinfo.gcType,
-            typeProcess = typeProcess
-        )
-    }
-}
+)
 
 enum class TypeProcess {
     Kotlin,

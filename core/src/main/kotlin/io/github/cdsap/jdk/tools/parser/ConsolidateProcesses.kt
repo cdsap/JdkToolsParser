@@ -9,6 +9,7 @@ class ConsolidateProcesses(
     private val jInfoData: ProcessParser<ProcessJInfo> = JInfoData(),
     private val jStatData: ProcessParser<ProcessJstat> = JStatData()
 ) {
+    private val processMapper = ProcessMapper()
 
     fun consolidate(jStatResult: String, jInfoResult: String, typeProcess: TypeProcess): List<Process> {
         return consolidateParsed(
@@ -25,7 +26,7 @@ class ConsolidateProcesses(
     ): List<Process> {
         return jStatProcesses.mapNotNull { (pid, jStat) ->
             jInfoProcesses[pid]?.let { jInfo ->
-                Process.from(pid, jStat, jInfo, typeProcess)
+                processMapper.from(pid, jStat, jInfo, typeProcess)
             }
         }
     }
