@@ -60,6 +60,20 @@ class JInfoDataTest {
         assertTrue(result["54321"]?.max == 1.0)
     }
 
+    @Test
+    fun testResultContainingMultipleTrailingEmptyLinesIsParsed() {
+        val jInfoData = JInfoData()
+        val output = """
+            XX:CICompilerCount=4 -XX:CompressedClassSpaceSize=260046848 -XX:MaxHeapSize=2 -XX:ClassSpaceSize=26
+            12345
+        """.trimIndent() + "\n\n\n"
+
+        val result = jInfoData.process(output)
+
+        assertEquals(1, result.size)
+        assertEquals(2.0, result["12345"]?.max)
+    }
+
 
     @Test
     fun testResultContainingMultipleProcessesIsParsedButOneIsIncorrect() {

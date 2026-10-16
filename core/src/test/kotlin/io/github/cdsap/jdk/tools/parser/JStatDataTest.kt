@@ -147,4 +147,19 @@ class JStatDataTest {
         assertTrue(result.size == 1)
         assertTrue(result["42050"]?.uptime == 10.0)
     }
+
+    @Test
+    fun testTrailingBlankLinesDoNotCreateAnAdditionalRecord() {
+        val jStatData = JStatData()
+        val output = """
+            Timestamp  GCT
+                    10.0  1.5
+            42050
+        """.trimIndent() + "\n\n  \n"
+
+        val result = jStatData.process(output)
+
+        assertTrue(result.size == 1)
+        assertTrue(result["42050"]?.uptime == 10.0)
+    }
 }
