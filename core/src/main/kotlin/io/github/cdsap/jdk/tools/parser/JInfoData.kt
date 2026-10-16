@@ -8,19 +8,26 @@ open class JInfoData : JInfoParser, ProcessParser<ProcessJInfo> {
     open override fun process(result: String): Map<String, ProcessJInfo> {
         val processP = mutableMapOf<String, ProcessJInfo>()
         for (record in result.fixedWidthRecords(2)) {
-            val flags = record[0].split("\\s+".toRegex())
-            val gcType = getCollector(flags)
-            if (!flags.last().contains("-XX:MaxHeapSize=")) {
-                flags.dropLast(1)
-            }
-
-            val heapSizeFlag = flags.firstOrNull { it.contains("-XX:MaxHeapSize=") }?.replace("-XX:MaxHeapSize=", "")
-            val process = record[1].split("\\s+".toRegex())
-            if (heapSizeFlag != null) {
-                processP[process.first()] = ProcessJInfo(heapSizeFlag.toDouble(), gcType)
+            parseRecord(record)?.let { (pid, processJInfo) ->
+                processP[pid] = processJInfo
             }
         }
         return processP
+    }
+
+    private fun parseRecord(record: List<String>): Pair<String, ProcessJInfo>? {
+        val flags = record.getOrNull(0)?.split("\\s+".toRegex()).orEmpty()
+        val heapSize = flags.firstOrNull { it.contains("-XX:MaxHeapSize=") }
+            ?.substringAfter("-XX:MaxHeapSize=")
+            ?.toDoubleOrNull()
+            ?: return null
+        val pid = record.getOrNull(1)
+            ?.split("\\s+".toRegex())
+            ?.firstOrNull()
+            ?.takeIf { it.isNotEmpty() }
+            ?: return null
+
+        return pid to ProcessJInfo(heapSize, getCollector(flags))
     }
 
     private fun getCollector(flags: List<String>): String =
