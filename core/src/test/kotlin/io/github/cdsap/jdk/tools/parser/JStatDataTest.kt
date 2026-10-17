@@ -1,9 +1,37 @@
 package io.github.cdsap.jdk.tools.parser
 
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class JStatDataTest {
+
+    @Test
+    fun testJstatProcessParserParsesOneProcess() {
+        val result = JStatProcessParser().parse(
+            header = "Timestamp S0C S1C S0U S1U EC EU OC OU GCT",
+            values = "1000.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0",
+            pid = "42050"
+        )
+
+        assertEquals(9.0, result?.second?.gcTime)
+        assertEquals(1000.0, result?.second?.uptime)
+        assertEquals(15.0, result?.second?.capacity)
+        assertEquals(21.0, result?.second?.usage)
+        assertEquals("42050", result?.first)
+    }
+
+    @Test
+    fun testJstatProcessParserSkipsMismatchedColumns() {
+        val result = JStatProcessParser().parse(
+            header = "Timestamp S0C",
+            values = "1000.0",
+            pid = "42050"
+        )
+
+        assertNull(result)
+    }
 
     @Test
     fun testIncorrectOutputGeneratesEmptyMap() {
