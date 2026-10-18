@@ -107,6 +107,37 @@ class JInfoDataTest {
     }
 
     @Test
+    fun testIncompleteTrailingRecordIsIgnored() {
+        val jInfoData = JInfoData()
+        val output = """
+            -XX:MaxHeapSize=2
+            12345
+            -XX:MaxHeapSize=1
+            """.trimIndent()
+
+        val result = jInfoData.process(output)
+
+        assertEquals(setOf("12345"), result.keys)
+        assertEquals(2.0, result["12345"]?.max)
+    }
+
+    @Test
+    fun testRecordWithoutPidIsSkippedWhileValidRecordIsParsed() {
+        val jInfoData = JInfoData()
+        val output = """
+            -XX:MaxHeapSize=1
+
+            -XX:MaxHeapSize=2
+            54321
+            """.trimIndent()
+
+        val result = jInfoData.process(output)
+
+        assertEquals(setOf("54321"), result.keys)
+        assertEquals(2.0, result["54321"]?.max)
+    }
+
+    @Test
     fun testGcTypeIsRetrieved() {
         val jInfoData = JInfoData()
         val output = """
