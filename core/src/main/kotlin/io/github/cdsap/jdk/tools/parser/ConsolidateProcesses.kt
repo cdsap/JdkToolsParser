@@ -9,25 +9,13 @@ class ConsolidateProcesses(
     private val jInfoData: ProcessParser<ProcessJInfo> = JInfoData(),
     private val jStatData: ProcessParser<ProcessJstat> = JStatData()
 ) {
-    private val processMapper = ProcessMapper()
+    private val processConsolidator = ProcessConsolidator()
 
     fun consolidate(jStatResult: String, jInfoResult: String, typeProcess: TypeProcess): List<Process> {
-        return consolidateParsed(
+        return processConsolidator.consolidate(
             jStatProcesses = jStatData.process(jStatResult),
             jInfoProcesses = jInfoData.process(jInfoResult),
             typeProcess = typeProcess
         )
-    }
-
-    internal fun consolidateParsed(
-        jStatProcesses: Map<String, ProcessJstat>,
-        jInfoProcesses: Map<String, ProcessJInfo>,
-        typeProcess: TypeProcess
-    ): List<Process> {
-        return jStatProcesses.mapNotNull { (pid, jStat) ->
-            jInfoProcesses[pid]?.let { jInfo ->
-                processMapper.from(pid, jStat, jInfo, typeProcess)
-            }
-        }
     }
 }
