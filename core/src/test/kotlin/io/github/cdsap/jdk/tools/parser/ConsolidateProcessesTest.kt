@@ -71,7 +71,7 @@ class ConsolidateProcessesTest {
     }
 
     @Test
-    fun testConsolidateParsedJoinsMatchingProcessesWithoutRawText() {
+    fun testProcessConsolidatorJoinsMatchingProcessesWithoutRawText() {
         val jStatProcesses = mapOf(
             "123" to ProcessJstat(
                 usage = 1048576.0,
@@ -90,7 +90,7 @@ class ConsolidateProcessesTest {
             "123" to ProcessJInfo(max = 1073741824.0, gcType = "-XX:+UseG1GC")
         )
 
-        val consolidatedList = ConsolidateProcesses().consolidateParsed(
+        val consolidatedList = ProcessConsolidator().consolidate(
             jStatProcesses = jStatProcesses,
             jInfoProcesses = jInfoProcesses,
             typeProcess = TypeProcess.Kotlin
