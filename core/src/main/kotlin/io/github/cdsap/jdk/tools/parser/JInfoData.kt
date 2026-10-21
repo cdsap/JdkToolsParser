@@ -3,7 +3,7 @@ package io.github.cdsap.jdk.tools.parser
 import io.github.cdsap.jdk.tools.parser.model.ProcessJInfo
 
 
-open class JInfoData : JInfoParser, ProcessParser<ProcessJInfo> {
+open class JInfoData : JInfoParser {
 
     open override fun process(result: String): Map<String, ProcessJInfo> {
         val processP = mutableMapOf<String, ProcessJInfo>()
