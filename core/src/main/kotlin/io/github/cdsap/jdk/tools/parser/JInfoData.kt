@@ -31,15 +31,15 @@ open class JInfoData : JInfoParser {
     }
 
     private fun getCollector(flags: List<String>): String =
-        collectorFlags.firstOrNull { (flag, _) -> flags.contains(flag) }?.second.orEmpty()
+        supportedCollectorFlags.firstOrNull(flags::contains).orEmpty()
 
     private companion object {
-        val collectorFlags = listOf(
-            "-XX:+UseZGC" to "-XX:+UseZGC",
-            "-XX:+UseSerialGC" to "-XX:+UseSerialGC",
-            "-XX:+UseShenandoahGC" to "-XX:+UseShenandoahGC",
-            "-XX:+UseG1GC" to "-XX:+UseG1GC",
-            "-XX:+UseParallelGC" to "-XX:+UseParallelGC",
+        val supportedCollectorFlags = listOf(
+            "-XX:+UseZGC",
+            "-XX:+UseSerialGC",
+            "-XX:+UseShenandoahGC",
+            "-XX:+UseG1GC",
+            "-XX:+UseParallelGC",
         )
     }
 }

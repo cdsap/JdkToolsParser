@@ -180,6 +180,17 @@ class JInfoDataTest {
     }
 
     @Test
+    fun testGcTypeUsesSupportedCollectorOrderRatherThanFlagOrder() {
+        val jInfoData = JInfoData()
+        val output = """
+            -XX:+UseG1GC -XX:+UseParallelGC -XX:MaxHeapSize=1
+            12345
+            """.trimIndent()
+
+        assertEquals("-XX:+UseG1GC", jInfoData.process(output)["12345"]?.gcType)
+    }
+
+    @Test
     fun testNotSupportedGcTypeIsEmpty() {
         val jInfoData = JInfoData()
         val output = """
