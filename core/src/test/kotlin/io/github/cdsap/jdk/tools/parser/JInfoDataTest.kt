@@ -74,6 +74,17 @@ class JInfoDataTest {
         assertEquals(2.0, result["12345"]?.max)
     }
 
+    @Test
+    fun testWhitespaceVariationsDoNotChangeParsedProcesses() {
+        val jInfoData = JInfoData()
+        val output = "\t-XX:MaxHeapSize=2\t\r\n\t12345\t\r\n\n  \n"
+
+        assertEquals(
+            jInfoData.process("-XX:MaxHeapSize=2\n12345"),
+            jInfoData.process(output)
+        )
+    }
+
 
     @Test
     fun testResultContainingMultipleProcessesIsParsedButOneIsIncorrect() {
