@@ -5,14 +5,14 @@ import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 internal class JStatProcessParser {
 
     fun parse(header: String, values: String, pid: String): Pair<String, ProcessJstat>? {
-        val rawHeaders = header.split("\\s+".toRegex()).filter { it != "" }
-        val rawValues = values.split("\\s+".toRegex()).filter { it != "" }
+        val rawHeaders = header.split(" ")
+        val rawValues = values.split(" ")
         if (rawHeaders.size != rawValues.size) {
             return null
         }
 
         val parsedValues = rawHeaders.zip(rawValues).toMap()
-        val process = pid.split("\\s+".toRegex())
+        val process = pid.split(" ")
         return process.first() to ProcessJstat(
             capacity = getCapacity(parsedValues),
             usage = getUsage(parsedValues),
