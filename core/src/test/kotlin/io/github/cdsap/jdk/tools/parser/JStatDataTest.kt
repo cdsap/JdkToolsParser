@@ -190,4 +190,15 @@ class JStatDataTest {
         assertTrue(result.size == 1)
         assertTrue(result["42050"]?.uptime == 10.0)
     }
+
+    @Test
+    fun testWhitespaceVariationsDoNotChangeParsedProcesses() {
+        val jStatData = JStatData()
+        val output = "Timestamp\t GCT\r\n\t10.0  1.5\t\r\n\t42050\t\r\n\n  \n"
+
+        assertEquals(
+            jStatData.process("Timestamp GCT\n10.0 1.5\n42050"),
+            jStatData.process(output)
+        )
+    }
 }

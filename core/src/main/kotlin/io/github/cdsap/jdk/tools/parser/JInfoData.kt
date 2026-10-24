@@ -16,13 +16,13 @@ open class JInfoData : JInfoParser {
     }
 
     private fun parseRecord(record: List<String>): Pair<String, ProcessJInfo>? {
-        val flags = record.getOrNull(0)?.split("\\s+".toRegex()).orEmpty()
+        val flags = record.getOrNull(0)?.split(" ").orEmpty()
         val heapSize = flags.firstOrNull { it.contains("-XX:MaxHeapSize=") }
             ?.substringAfter("-XX:MaxHeapSize=")
             ?.toDoubleOrNull()
             ?: return null
         val pid = record.getOrNull(1)
-            ?.split("\\s+".toRegex())
+            ?.split(" ")
             ?.firstOrNull()
             ?.takeIf { it.isNotEmpty() }
             ?: return null
