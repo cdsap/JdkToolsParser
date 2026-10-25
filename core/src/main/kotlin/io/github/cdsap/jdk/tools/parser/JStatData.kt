@@ -6,9 +6,9 @@ open class JStatData : JStatParser {
 
     open override fun process(result: String): Map<String, ProcessJstat> {
         val processes = mutableMapOf<String, ProcessJstat>()
-        val parser = JStatProcessParser()
+        val metrics = JStatMetrics()
         for (record in parseJstatRecords(result)) {
-            parser.parse(record.header, record.values, record.pid)?.let { (pid, process) ->
+            parseRecord(record, metrics)?.let { (pid, process) ->
                 processes[pid] = process
             }
         }
@@ -26,6 +26,18 @@ open class JStatData : JStatParser {
             records.add(JstatRecord(header = record[0], values = record[1], pid = record[2]))
         }
         return records
+    }
+
+    private fun parseRecord(record: JstatRecord, metrics: JStatMetrics): Pair<String, ProcessJstat>? {
+        val rawHeaders = record.header.split(" ")
+        val rawValues = record.values.split(" ")
+        if (rawHeaders.size != rawValues.size) {
+            return null
+        }
+
+        val pid = record.pid.split(" ").firstOrNull()?.takeIf { it.isNotEmpty() } ?: return null
+        val measurements = rawHeaders.zip(rawValues).toMap()
+        return pid to metrics.map(measurements)
     }
 
     private data class JstatRecord(

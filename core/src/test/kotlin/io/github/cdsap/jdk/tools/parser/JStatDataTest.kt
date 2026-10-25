@@ -1,36 +1,52 @@
 package io.github.cdsap.jdk.tools.parser
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class JStatDataTest {
 
     @Test
-    fun testJstatProcessParserParsesOneProcess() {
-        val result = JStatProcessParser().parse(
-            header = "Timestamp S0C S1C S0U S1U EC EU OC OU GCT",
-            values = "1000.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0",
-            pid = "42050"
+    fun testJstatMetricsMapsStandardGcMeasurements() {
+        val result = JStatMetrics().map(
+            mapOf(
+                "Timestamp" to "1000.0",
+                "S0C" to "1.0",
+                "S1C" to "2.0",
+                "S0U" to "3.0",
+                "S1U" to "4.0",
+                "EC" to "5.0",
+                "EU" to "6.0",
+                "OC" to "7.0",
+                "OU" to "8.0",
+                "GCT" to "9.0",
+            )
         )
 
-        assertEquals(9.0, result?.second?.gcTime)
-        assertEquals(1000.0, result?.second?.uptime)
-        assertEquals(15.0, result?.second?.capacity)
-        assertEquals(21.0, result?.second?.usage)
-        assertEquals("42050", result?.first)
+        assertEquals(9.0, result.gcTime)
+        assertEquals(1000.0, result.uptime)
+        assertEquals(15.0, result.capacity)
+        assertEquals(21.0, result.usage)
     }
 
     @Test
-    fun testJstatProcessParserSkipsMismatchedColumns() {
-        val result = JStatProcessParser().parse(
-            header = "Timestamp S0C",
-            values = "1000.0",
-            pid = "42050"
+    fun testJstatMetricsMapsZgcMeasurementsWithoutSurvivorCapacityOrEdenUsage() {
+        val result = JStatMetrics().map(
+            mapOf(
+                "Timestamp" to "1000.0",
+                "S0C" to "-",
+                "OU" to "2.0",
+                "MU" to "3.0",
+                "OC" to "70.0",
+                "MC" to "3.0",
+                "GCT" to "9.0",
+            )
         )
 
-        assertNull(result)
+        assertEquals(9.0, result.gcTime)
+        assertEquals(1000.0, result.uptime)
+        assertEquals(73.0, result.capacity)
+        assertEquals(5.0, result.usage)
     }
 
     @Test
