@@ -8,8 +8,8 @@ open class JStatData : JStatParser {
         val processes = mutableMapOf<String, ProcessJstat>()
         val metrics = JStatMetrics()
         for (record in parseJstatRecords(result)) {
-            parseRecord(record, metrics)?.let { (pid, process) ->
-                processes[pid] = process
+            parseRecord(record)?.let { (pid, measurements) ->
+                processes[pid] = metrics.map(measurements)
             }
         }
         return processes
@@ -28,7 +28,7 @@ open class JStatData : JStatParser {
         return records
     }
 
-    private fun parseRecord(record: JstatRecord, metrics: JStatMetrics): Pair<String, ProcessJstat>? {
+    private fun parseRecord(record: JstatRecord): Pair<String, Map<String, String>>? {
         val rawHeaders = record.header.split(" ")
         val rawValues = record.values.split(" ")
         if (rawHeaders.size != rawValues.size) {
@@ -36,8 +36,7 @@ open class JStatData : JStatParser {
         }
 
         val pid = record.pid.split(" ").firstOrNull()?.takeIf { it.isNotEmpty() } ?: return null
-        val measurements = rawHeaders.zip(rawValues).toMap()
-        return pid to metrics.map(measurements)
+        return pid to rawHeaders.zip(rawValues).toMap()
     }
 
     private data class JstatRecord(

@@ -50,6 +50,29 @@ class JStatDataTest {
     }
 
     @Test
+    fun testJstatMetricsMapsMalformedValuesToZero() {
+        val result = JStatMetrics().map(
+            mapOf(
+                "Timestamp" to "not-a-number",
+                "GCT" to "-",
+                "EC" to "not-a-number",
+                "OC" to "2.0",
+                "S0C" to "3.0",
+                "S1C" to "4.0",
+                "EU" to "not-a-number",
+                "OU" to "6.0",
+                "S0U" to "7.0",
+                "S1U" to "8.0",
+            )
+        )
+
+        assertEquals(0.0, result.uptime)
+        assertEquals(0.0, result.gcTime)
+        assertEquals(9.0, result.capacity)
+        assertEquals(21.0, result.usage)
+    }
+
+    @Test
     fun testIncorrectOutputGeneratesEmptyMap() {
         val jStatData = JStatData()
         val result = jStatData.process("xxxx")
