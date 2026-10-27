@@ -1,13 +1,13 @@
 package io.github.cdsap.jdk.tools.parser.model
 
-import io.github.cdsap.jdk.tools.parser.ProcessMapper
+import io.github.cdsap.jdk.tools.parser.ProcessAssembler
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class ProcessTest {
     @Test
-    fun fromConvertsUnitsAndMapsFields() {
-        val process = ProcessMapper().from(
+    fun assembleConvertsUnitsAndMapsFields() {
+        val process = ProcessAssembler().assemble(
             pid = "123",
             jstat = ProcessJstat(
                 usage = 1048576.0,
