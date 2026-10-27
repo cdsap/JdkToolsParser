@@ -6,7 +6,7 @@ import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 import io.github.cdsap.jdk.tools.parser.model.TypeProcess
 
 internal class ProcessConsolidator(
-    private val processMapper: ProcessMapper = ProcessMapper()
+    private val processAssembler: ProcessAssembler = ProcessAssembler()
 ) {
     fun consolidate(
         jStatProcesses: Map<String, ProcessJstat>,
@@ -15,7 +15,7 @@ internal class ProcessConsolidator(
     ): List<Process> {
         return jStatProcesses.mapNotNull { (pid, jStat) ->
             jInfoProcesses[pid]?.let { jInfo ->
-                processMapper.from(pid, jStat, jInfo, typeProcess)
+                processAssembler.assemble(pid, jStat, jInfo, typeProcess)
             }
         }
     }
