@@ -6,8 +6,8 @@ import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 import io.github.cdsap.jdk.tools.parser.model.TypeProcess
 
 class ConsolidateProcesses(
-    private val jInfoData: JInfoParser = JInfoData(),
-    private val jStatData: JStatParser = JStatData()
+    private val jInfoData: ProcessParser<ProcessJInfo> = JInfoData(),
+    private val jStatData: ProcessParser<ProcessJstat> = JStatData()
 ) {
     private val processConsolidator = ProcessConsolidator()
 
