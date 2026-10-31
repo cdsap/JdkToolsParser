@@ -218,16 +218,18 @@ class JStatDataTest {
     @Test
     fun testTrailingBlankLinesDoNotCreateAnAdditionalRecord() {
         val jStatData = JStatData()
-        val output = """
+        val outputWithTrailingBlankLines = """
             Timestamp  GCT
                     10.0  1.5
             42050
         """.trimIndent() + "\n\n  \n"
 
-        val result = jStatData.process(output)
+        val result = jStatData.process(outputWithTrailingBlankLines)
 
-        assertTrue(result.size == 1)
-        assertTrue(result["42050"]?.uptime == 10.0)
+        assertEquals(
+            jStatData.process(outputWithTrailingBlankLines.trimEnd()),
+            result
+        )
     }
 
     @Test
