@@ -6,16 +6,16 @@ import io.github.cdsap.jdk.tools.parser.model.ProcessJInfo
 open class JInfoData : JInfoParser, ProcessParser<ProcessJInfo> {
 
     open override fun process(result: String): Map<String, ProcessJInfo> {
-        val processP = mutableMapOf<String, ProcessJInfo>()
+        val processes = mutableMapOf<String, ProcessJInfo>()
         for (record in result.fixedWidthRecords(2)) {
-            parseRecord(record)?.let { (pid, processJInfo) ->
-                processP[pid] = processJInfo
+            parseJInfoRecord(record)?.let { (pid, processJInfo) ->
+                processes[pid] = processJInfo
             }
         }
-        return processP
+        return processes
     }
 
-    private fun parseRecord(record: List<String>): Pair<String, ProcessJInfo>? {
+    private fun parseJInfoRecord(record: List<String>): Pair<String, ProcessJInfo>? {
         val flags = record.getOrNull(0)?.split(" ").orEmpty()
         val heapSize = flags.firstOrNull { it.contains("-XX:MaxHeapSize=") }
             ?.substringAfter("-XX:MaxHeapSize=")
