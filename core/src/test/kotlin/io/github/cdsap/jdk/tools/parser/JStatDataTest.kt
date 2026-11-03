@@ -1,10 +1,35 @@
 package io.github.cdsap.jdk.tools.parser
 
+import io.github.cdsap.jdk.tools.parser.model.ProcessJstat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class JStatDataTest {
+
+    @Test
+    fun testParsedJstatRowConvertsToProcessJstat() {
+        val row = JStatRow(
+            pid = "42050",
+            values = mapOf(
+                "Timestamp" to "1000.0",
+                "EC" to "5.0",
+                "OC" to "7.0",
+                "S0C" to "1.0",
+                "S1C" to "2.0",
+                "EU" to "6.0",
+                "OU" to "8.0",
+                "S0U" to "3.0",
+                "S1U" to "4.0",
+                "GCT" to "9.0",
+            )
+        )
+
+        assertEquals(
+            ProcessJstat(usage = 21.0, capacity = 15.0, gcTime = 9.0, uptime = 1000.0),
+            row.toProcessJstat()
+        )
+    }
 
     @Test
     fun testJstatMetricsMapsStandardGcMeasurements() {

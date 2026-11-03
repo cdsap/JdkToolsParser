@@ -6,10 +6,9 @@ open class JStatData : JStatParser, ProcessParser<ProcessJstat> {
 
     open override fun process(result: String): Map<String, ProcessJstat> {
         val processes = mutableMapOf<String, ProcessJstat>()
-        val metrics = JStatMetrics()
         for (record in parseJstatRecords(result)) {
-            parseRecord(record)?.let { (pid, measurements) ->
-                processes[pid] = metrics.map(measurements)
+            parseJstatRow(record)?.let { row ->
+                processes[row.pid] = row.toProcessJstat()
             }
         }
         return processes
@@ -28,7 +27,7 @@ open class JStatData : JStatParser, ProcessParser<ProcessJstat> {
         return records
     }
 
-    private fun parseRecord(record: JstatRecord): Pair<String, Map<String, String>>? {
+    private fun parseJstatRow(record: JstatRecord): JStatRow? {
         val rawHeaders = record.header.split(" ")
         val rawValues = record.values.split(" ")
         if (rawHeaders.size != rawValues.size) {
@@ -36,7 +35,7 @@ open class JStatData : JStatParser, ProcessParser<ProcessJstat> {
         }
 
         val pid = record.pid.split(" ").firstOrNull()?.takeIf { it.isNotEmpty() } ?: return null
-        return pid to rawHeaders.zip(rawValues).toMap()
+        return JStatRow(pid = pid, values = rawHeaders.zip(rawValues).toMap())
     }
 
     private data class JstatRecord(
@@ -44,4 +43,11 @@ open class JStatData : JStatParser, ProcessParser<ProcessJstat> {
         val values: String,
         val pid: String,
     )
+}
+
+internal data class JStatRow(
+    val pid: String,
+    val values: Map<String, String>,
+) {
+    fun toProcessJstat(): ProcessJstat = JStatMetrics().map(values)
 }
