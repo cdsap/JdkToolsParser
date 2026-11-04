@@ -112,6 +112,13 @@ class JStatDataTest {
     }
 
     @Test
+    fun testBlankOutputGeneratesEmptyMap() {
+        val jStatData = JStatData()
+        val result = jStatData.process("\n  \n\t\n")
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
     fun testSimpleOutputFromOneProcess() {
         val jStatData = JStatData()
         val result = jStatData.process(
