@@ -21,6 +21,13 @@ class JInfoDataTest {
     }
 
     @Test
+    fun testBlankOutputGeneratesEmptyMap() {
+        val jInfoData = JInfoData()
+        val result = jInfoData.process("\n  \n\t\n")
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
     fun testResultIsNotIncludingMaxHeapSize() {
         val jInfoData = JInfoData()
         val result = jInfoData.process("XX:CICompilerCount=4 -XX:CompressedClassSpaceSize=260046848")

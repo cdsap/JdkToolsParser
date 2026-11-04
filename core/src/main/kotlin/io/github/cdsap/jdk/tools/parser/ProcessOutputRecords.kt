@@ -2,9 +2,11 @@ package io.github.cdsap.jdk.tools.parser
 
 private val parserWhitespace = "\\s+".toRegex()
 
+private fun List<String>.withoutTrailingBlankLines(): List<String> =
+    dropLastWhile { it.isBlank() }
+
 private fun String.normalizedParserLines(): List<String> {
-    val lines = split("\n")
-    val linesWithoutTrailingBlanks = lines.dropLastWhile { it.isBlank() }
+    val linesWithoutTrailingBlanks = split("\n").withoutTrailingBlankLines()
     return linesWithoutTrailingBlanks.map { it.trim().replace(parserWhitespace, " ") }
 }
 
