@@ -6,8 +6,9 @@ open class JStatData : JStatParser, ProcessParser<ProcessJstat> {
 
     open override fun process(result: String): Map<String, ProcessJstat> {
         val processes = mutableMapOf<String, ProcessJstat>()
-        for (record in parseJstatRecords(result)) {
-            parseJstatRow(record)?.let { row ->
+        val input = ParserInput(result)
+        for (record in parseJstatRecords(input)) {
+            parseJstatRow(record, input)?.let { row ->
                 processes[row.pid] = row.toProcessJstat()
             }
         }
@@ -19,22 +20,22 @@ open class JStatData : JStatParser, ProcessParser<ProcessJstat> {
     // Header: Timestamp    S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT    CGC    CGCT     GCT
     // Values:     1117.8  0.0   30720.0  0.0   30720.0 1135616.0 755712.0  865280.0   546816.0  195184.0 189433.3 22208.0 20357.8     22    0.682   0      0.000  12      0.070    0.752
     // PID 28743
-    private fun parseJstatRecords(result: String): List<JstatRecord> {
+    private fun parseJstatRecords(input: ParserInput): List<JstatRecord> {
         val records = mutableListOf<JstatRecord>()
-        for (record in result.fixedWidthRecords(3)) {
+        for (record in input.fixedWidthRecords(3)) {
             records.add(JstatRecord(header = record[0], values = record[1], pid = record[2]))
         }
         return records
     }
 
-    private fun parseJstatRow(record: JstatRecord): JStatRow? {
-        val rawHeaders = record.header.split(" ")
-        val rawValues = record.values.split(" ")
+    private fun parseJstatRow(record: JstatRecord, input: ParserInput): JStatRow? {
+        val rawHeaders = input.tokens(record.header)
+        val rawValues = input.tokens(record.values)
         if (rawHeaders.size != rawValues.size) {
             return null
         }
 
-        val pid = record.pid.split(" ").firstOrNull()?.takeIf { it.isNotEmpty() } ?: return null
+        val pid = input.tokens(record.pid).firstOrNull()?.takeIf { it.isNotEmpty() } ?: return null
         return JStatRow(pid = pid, values = rawHeaders.zip(rawValues).toMap())
     }
 

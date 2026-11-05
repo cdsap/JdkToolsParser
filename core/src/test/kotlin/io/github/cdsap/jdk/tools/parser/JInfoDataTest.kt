@@ -86,12 +86,13 @@ class JInfoDataTest {
     @Test
     fun testWhitespaceVariationsDoNotChangeParsedProcesses() {
         val jInfoData = JInfoData()
-        val output = "\t-XX:MaxHeapSize=2\t\r\n\t12345\t\r\n\n  \n"
+        val output = "\t-XX:+UseZGC   -XX:MaxHeapSize=2\t\r\n\t12345\t\r\n\n  \n"
 
         assertEquals(
-            jInfoData.process("-XX:MaxHeapSize=2\n12345"),
+            jInfoData.process("-XX:+UseZGC -XX:MaxHeapSize=2\n12345"),
             jInfoData.process(output)
         )
+        assertEquals("-XX:+UseZGC", jInfoData.process(output)["12345"]?.gcType)
     }
 
 

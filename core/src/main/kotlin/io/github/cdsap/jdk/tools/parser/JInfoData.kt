@@ -7,22 +7,23 @@ open class JInfoData : JInfoParser, ProcessParser<ProcessJInfo> {
 
     open override fun process(result: String): Map<String, ProcessJInfo> {
         val processes = mutableMapOf<String, ProcessJInfo>()
-        for (record in result.fixedWidthRecords(2)) {
-            parseJInfoRecord(record)?.let { (pid, processJInfo) ->
+        val input = ParserInput(result)
+        for (record in input.fixedWidthRecords(2)) {
+            parseJInfoRecord(record, input)?.let { (pid, processJInfo) ->
                 processes[pid] = processJInfo
             }
         }
         return processes
     }
 
-    private fun parseJInfoRecord(record: List<String>): Pair<String, ProcessJInfo>? {
-        val flags = record.getOrNull(0)?.split(" ").orEmpty()
+    private fun parseJInfoRecord(record: List<String>, input: ParserInput): Pair<String, ProcessJInfo>? {
+        val flags = record.getOrNull(0)?.let(input::tokens).orEmpty()
         val heapSize = flags.firstOrNull { it.contains("-XX:MaxHeapSize=") }
             ?.substringAfter("-XX:MaxHeapSize=")
             ?.toDoubleOrNull()
             ?: return null
         val pid = record.getOrNull(1)
-            ?.split(" ")
+            ?.let(input::tokens)
             ?.firstOrNull()
             ?.takeIf { it.isNotEmpty() }
             ?: return null
